@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+
+<body>
+    <div class="login-clean">
+        <form method="post">
+            {% csrf_token %}
+            <div class="heading">
+                <h1>Instapic</h1>
+            </div>
+
+            <div class="form-group" >
+                <input class="form-input" type="text" name="username" id="username" placeholder="Username">
+                <small class='usernameerror'></small>
+            </div>
+
+            <div class="form-group">
+                <input class="form-input" type="text" name="email" id="email" placeholder="Email">
+                <small class="emailerror"></small>
+            </div>
+
+            <div class="form-group">
+                <input class="form-input" type="password" name="password" id="password" placeholder="Password">
+                <small class="passworderror"></small>
+            </div>
+
+            <h4 class="successmsg"></h4>
+
+            <button class="btn btn-primary btn-block" type="submit" jsondata="{{ ajax_output }}" >
+                <div class="buttontext">Create Account</div>
+                <span style="display:none;" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            </button>
+
+            <div class="signuplogin">Already have an account? <a href="{% url 'login' %}" style="color: #04a3ff; text-decoration:none; ">Login Here</a></div>
+        </form>    
+    </div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<script type="text/javascript" >
+    $(document).ready(function(){
+        $('.btn').click(function(e){
+            e.preventDefault();
+            $.ajax({
+                method:'POST',
+                url:'ajaxsignup',
+                data:{
+                    csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+                    username:$('input[name=username]').val(),
+                    email:$('input[name=email]').val(),
+                    password:$('input[name=password]').val(),
+                },
+                beforeSend: function(){
+                    $('.form-group').removeClass('error');
+                    $('.successmsg').text('');
+
+                    $('.buttontext').css('display','None');
+                    $('.spinner-border').css('display','');
+                },
+                success: function(data, status){
+                    setTimeout(function() {
+                        
+                        $('.buttontext').css('display','');
+                        $('.spinner-border').css('display','None');
+
+                        if (data.Status == 'Error') {
+                            if (data.usernameerror != ''){
+                                $('.usernameerror').text(data.usernameerror);
+                                $('.usernameerror').parent().addClass('error')
+                            }
+                            if (data.passworderror != ''){
+                                $('.passworderror').text(data.passworderror);
+                                $('.passworderror').parent().addClass('error')
+                            }
+                            if (data.emailerror != ''){   
+                                $('.emailerror').text(data.emailerror);
+                                $('.emailerror').parent().addClass('error')
+                            }
+                        }
+                        else {
+                            $('.successmsg').text(data.Message);
+                            //window.location = '/signup';
+                        }
+                    }, 300);
+
+                }
+            })
+        })
+    })
+</script>
+
+{% endblock %}

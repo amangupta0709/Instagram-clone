@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+
+<body>
+    <div class="login-clean">
+        <form method="post">
+            {% csrf_token %}
+            <div class="heading">
+                <h1>Instapic</h1>
+            </div>
+
+            <div class="form-group">
+                <input class="form-input" type="text" name="email" id="email" placeholder="Email">
+            </div>
+
+            <div class="form-group">
+                <input class="form-input" type="password" name="password" id="password" placeholder="Password">
+            </div>
+
+            <div class="form-group">
+                <small class="errormsg"></small>
+            </div>
+
+            <div class="form-group">
+                <button class="btn btn-primary btn-block" type="submit">
+                    <div class="buttontext">Log In</div>
+                    <span style="display:none;" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                </button>
+            <a href="#" class="forgot">Forgot your email or password?</a>
+
+            <div class="signuplogin">Don't have an account? <a href="{% url 'signup' %}" style="color: #04a3ff; text-decoration:none; ">Signup</a></div>
+        </form>
+    </div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<script type="text/javascript" >
+    $(document).ready(function(){
+        $('.btn').click(function(e){
+            e.preventDefault();
+            $.ajax({
+                method:'POST',
+                url:'ajaxlogin',
+                data:{
+                    csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+                    email:$('input[name=email]').val(),
+                    password:$('input[name=password]').val(),
+                },
+                beforeSend: function(){
+                    $('.form-group').removeClass('error');
+
+                    $('.buttontext').css('display','None');
+                    $('.spinner-border').css('display','');
+                },
+                success: function(data, status){
+                    setTimeout(function() {
+                        
+                        $('.buttontext').css('display','');
+                        $('.spinner-border').css('display','None');
+
+                        if (data.Status == 'Error') {
+                            $('.errormsg').text(data.Message);
+                            $('.form-group').addClass('error')
+                        }
+                       // else {
+                            //window.location = '/signup';
+                       // }
+                    }, 300);
+
+                }
+            })
+        })
+    })
+</script>
+
+{% endblock %}
